@@ -44,12 +44,12 @@ usage() {
   echo "    -o: Name for the output image file (optional). Do not include an extension;"
   echo "        A timestamp and the appropriate file extension will be automatically appended."
   echo "    -m: Model choice (optional). Default is 'sd3'. Choices are 'sd3' or 'sd3-turbo'."
+  exit 0
 }
 
 # Check if at least one argument is provided
 if [ $# -eq 0 ]; then
-    #usage
-    exit 0
+    usage
 fi
 
 while getopts ":p:n:s:t:o:m:" opt; do
