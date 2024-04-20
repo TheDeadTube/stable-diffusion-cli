@@ -1,4 +1,4 @@
-# Stability AI Script
+# stable-diffusion-cli
 
 These scripts provide an easy way to interact with the Stability AI API via a Linux command-line interface (CLI), with proper error-handling and logging as much information as possible about each image. Part of what spurred this project was that I kept losing track of what prompts, negative prompts, and seeds I had used per image.
 
