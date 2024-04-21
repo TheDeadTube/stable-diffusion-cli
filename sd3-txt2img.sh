@@ -382,6 +382,7 @@ case "$http_status" in
       echo "Negative Prompt: ${negative_prompt}"
       echo "Output Format: ${filetype}"
       echo "Model: ${sd_model}"
+      echo "Aspect Ratio: ${aspect_ratio}"
     } | tee -a "${log_file}"
     ;;
   400)
@@ -418,6 +419,7 @@ if [ "$http_status" != "200" ]; then
     echo "Negative Prompt: ${negative_prompt}"
     echo "Otput Format: ${filetype}"
     echo "Model: ${sd_model}"
+    echo "Aspect Ratio: ${aspect_ratio}"
     echo "Info Returned by API:"
     echo "Error Name: ${error_name}"
     echo "Error List:"
