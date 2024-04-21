@@ -29,6 +29,7 @@ filetype="jpeg" # Default filetype
 output_file="image_$(date -u +%Y-%m-%dT%H%M%S)"
 sd_model="sd3" # Default model.
 accept_mode="application/json; type=image/jpeg"
+aspect_ratio="16:9"
 
 usage() {
   echo "Usage: $0 -p <prompt> [-n <negative prompt>] [-s <seed>] [-t <filetype>] [-o <output image file name without extension>] [-m <model>]"
@@ -39,11 +40,12 @@ usage() {
   echo "    -n: Negative prompt string (optional)."
   echo "        Maximum length of 10000 characters."
   echo "        Note: The 'sd3-turbo' model does not support negative prompts."
-  echo "    -s: Seed value (optional). Must be in the range of [0, 4294967294]."
+  echo "    -s: Seed value (optional). Must be in the range of [0, 4294967294]. Default is random."
   echo "    -t: Filetype (optional). Default is 'jpeg'. Choices are 'jpeg' or 'png'."
   echo "    -o: Name for the output image file (optional). Do not include an extension;"
-  echo "        A timestamp and the appropriate file extension will be automatically appended."
-  echo "    -m: Model choice (optional). Default is 'sd3'. Choices are 'sd3' or 'sd3-turbo'."
+  echo "        A timestamp and the appropriate file extension will be automatically appended, like so: ${output_file}.${filetype}"
+  echo "    -m: Model choice (optional). Default is '${sd_model}'. Choices are 'sd3' or 'sd3-turbo'."
+  echo "    -r: Aspect ratio (optional). Default is '${aspect_ratio}'. Choices are '16:9', '1:1', '21:9', '2:3', '3:2', '4:5', '5:4', '9:16', '9:21'."
   exit 0
 }
 
@@ -70,6 +72,59 @@ interactive() {
     esac
   fi
   unset input_value
+
+    # Aspect ratio.
+  echo "Choose an aspect ratio, or press ENTER to choose the default of '${aspect_ratio}'."
+  while [ -z "${input_value}" ]; do
+    echo "1) 16:9"
+    echo "2) 1:1"
+    echo "3) 21:9"
+    echo "4) 2:3"
+    echo "5) 3:2"
+    echo "6) 4:5"
+    echo "7) 5:4"
+    echo "8) 9:16"
+    echo "9) 9:21"
+    printf ">>> "
+    read input_value
+    # TODO: This needs to be moved to its own validator function.
+    case "${input_value}" in
+      1 | 16:9 )
+        aspect_ratio="16:9"
+        ;;
+      2 | 1:1 )
+        aspect_ratio="1:1"
+        ;;
+      3 | 21:9 )
+        aspect_ratio="21:9"
+        ;;
+      4 | 2:3 )
+        aspect_ratio="2:3"
+        ;;
+      5 | 3:2 )
+        aspect_ratio="3:2"
+        ;;
+      6 | 4:5 )
+        aspect_ratio="4:5"
+        ;;
+      7 | 5:4 )
+        aspect_ratio="5:4"
+        ;;
+      8 | 9:16 )
+        aspect_ratio="9:16"
+        ;;
+      9 | 9:21 )
+        aspect_ratio="9:21"
+        ;;
+      exit )
+        exit 0
+        ;;
+      * )
+        echo "Invalid aspect ratio choice. Try again, or type 'exit' to exit."
+        # By unsetting here, we can repeat the while loop.
+        unset input_value
+    esac
+  done
 
   # Choose seed.
   echo "Choose a seed, in the range [0, 4294967294]. Or press ENTER for random."
@@ -151,13 +206,16 @@ interactive() {
     unset input_value
   fi
 
+
+
   # TODO: Debug prints. Remove these later.
-  #echo "Model: ${sd_model}"
-  #echo "Seed: ${seed}"
-  #echo "Filetype: ${filetype}"
-  #echo "Filename: ${output_file}"
-  #echo "Prompt: ${prompt}"
-  #echo "Negative prompt: ${negative_prompt}"
+  # echo "Model: ${sd_model}"
+  # echo "Aspect ratio: ${aspect_ratio}"
+  # echo "Seed: ${seed}"
+  # echo "Filetype: ${filetype}"
+  # echo "Filename: ${output_file}"
+  # echo "Prompt: ${prompt}"
+  # echo "Negative prompt: ${negative_prompt}"
 }
 
 # Check if at least one argument is provided
@@ -166,7 +224,7 @@ if [ $# -eq 0 ]; then
     interactive
 fi
 
-while getopts ":p:n:s:t:o:m:" opt; do
+while getopts ":p:n:s:t:o:m:r:" opt; do
   case ${opt} in
     h )
       usage
@@ -187,6 +245,43 @@ while getopts ":p:n:s:t:o:m:" opt; do
         echo "Negative prompt length must be less than 10000 characters. Aborting."
         exit 2
       fi
+      ;;
+    r )
+      case "${OPTARG}" in
+        1 | 16:9 )
+          aspect_ratio="16:9"
+          ;;
+        2 | 1:1 )
+          aspect_ratio="1:1"
+          ;;
+        3 | 21:9 )
+          aspect_ratio="21:9"
+          ;;
+        4 | 2:3 )
+          aspect_ratio="2:3"
+          ;;
+        5 | 3:2 )
+          aspect_ratio="3:2"
+          ;;
+        6 | 4:5 )
+          aspect_ratio="4:5"
+          ;;
+        7 | 5:4 )
+          aspect_ratio="5:4"
+          ;;
+        8 | 9:16 )
+          aspect_ratio="9:16"
+          ;;
+        9 | 9:21 )
+          aspect_ratio="9:21"
+          ;;
+        exit )
+          exit 0
+          ;;
+        * )
+          echo "Invalid aspect ratio choice."
+          exit 2;
+      esac
       ;;
     s )
       seed="${OPTARG}"
@@ -240,13 +335,14 @@ sd_temp_file="sd_temp_$(date -u +%Y-%m-%dT%H%M%S).json"
 # Define your curl command as an array
 curl_command=(
   curl -f -sS 'https://api.stability.ai/v2beta/stable-image/generate/sd3'
-  -H "authorization: Bearer $STABILITY_AI_KEY"
+  -H "authorization: Bearer ${STABILITY_AI_KEY}"
   -H "accept: ${accept_mode}"
   -F "prompt=${prompt}"
   -F "model=${sd_model}"
   -F "negative_prompt=${negative_prompt}"
   -F "seed=${seed}"
-  -F "output_format=$filetype"
+  -F "output_format=${filetype}"
+  -F "aspect_ratio=${aspect_ratio}"
   -o "${sd_temp_file}"
   -w '%{http_code}'
 )
