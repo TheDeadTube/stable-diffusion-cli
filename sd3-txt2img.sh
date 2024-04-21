@@ -47,9 +47,123 @@ usage() {
   exit 0
 }
 
+interactive() {
+  # Choose model.
+  echo "Choose a model, or press enter to accept the default of \"${sd_model}\""
+  echo "1) sd3"
+  echo "2) sd3-turbo"
+  printf ">>> "
+  read input_value
+
+  if [ -n "${input_value}" ]; then
+    case ${input_value} in
+      1 | sd3 )
+        sd_model="sd3"
+        ;;
+      2 | sd3-turbo )
+        sd_model="sd3-turbo"
+        ;;
+      * )
+        echo "Invalid model selection."
+        exit 2
+        ;;
+    esac
+  fi
+  unset input_value
+
+  # Choose seed.
+  echo "Choose a seed, in the range [0, 4294967294]. Or press ENTER for random."
+  printf ">>> "
+  read input_value
+
+  if [ -n "${input_value}" ]; then
+    seed="${input_value}"
+    # TODO: Move this to its own validation function for re-use. Putting this here was pure laziness.
+    if [[ $((seed)) -lt 0 || $((seed)) -gt "4294967294" ]]; then
+      echo "Seed must be in range [0, 4294967294]. Aborting."
+      exit 2
+    fi
+  fi
+  unset input_value
+
+  # Choose filetype.
+  echo "Choose the file type you want your image saved as, or press ENTER to accept the default value of \"${filetype}\"."
+  echo "1) jpeg"
+  echo "2) png"
+  printf ">>> "
+  read input_value
+
+  if [ -n "${input_value}" ]; then
+    case ${input_value} in
+      1 | jpeg | jpg )
+        filetype="jpeg"
+        ;;
+      2 | png )
+        filetype="png"
+        ;;
+      * )
+        echo "Invalid filetype."
+        exit 2
+        ;;
+    esac
+  fi
+  accept_mode="application/json; type=image/${filetype}"
+  unset input_value
+
+  # Choose output filename.
+  # TODO: Clean up instructions around output file name. Also probably change up how it appends the date, it's messy.
+  echo "Choose a name for your image, or press ENTER to accept the default of ${output_file}.${filetype}."
+  printf ">>> "
+  read input_value
+
+  if [ -n "${input_value}" ]; then
+    output_file="${input_value}_$(date -u +%Y-%m-%dT%H%M%S)"
+  fi
+  unset input_value
+
+  # Prompt.
+  echo "Write your prompt here. Must be in the range of [1, 10000] characters."
+  while [ -z "${input_value}" ]; do
+    printf ">>> "
+    read input_value
+    # TODO: Move this to its own validation function.
+    prompt_length=${#input_value}
+    if [[ $((prompt_length)) -lt 1 || $((prompt_length)) -gt 10000 ]]; then
+      echo "Prompt length must be in the range of [1, 10000] characters. Try again."
+      unset input_value
+    fi
+  done
+  prompt="${input_value}"
+  unset input_value
+
+  # Negative prompt. Only applies to 'sd3'.
+  if [ "${sd_model}" != "sd3-turbo" ]; then
+    echo "Write your negative prompt here, or press ENTER to skip entering one. Must be less than 10000 characters. Does not apply to sd3-turbo."
+    printf ">>> "
+    read input_value
+    # TODO: Move this to its own validation function.
+    negative_prompt_length=${#input_value}
+    if [[ $((negative_prompt_length)) -gt 10000 ]]; then
+      echo "Negative prompt length must be less than 10000 characters. Aborting."
+      exit 2
+    fi
+    negative_prompt="${input_value}"
+    unset input_value
+  fi
+
+  # TODO: Debug prints. Remove these later.
+  #echo "Model: ${sd_model}"
+  #echo "Seed: ${seed}"
+  #echo "Filetype: ${filetype}"
+  #echo "Filename: ${output_file}"
+  #echo "Prompt: ${prompt}"
+  #echo "Negative prompt: ${negative_prompt}"
+}
+
 # Check if at least one argument is provided
 if [ $# -eq 0 ]; then
-    usage
+    #usage
+    interactive
 fi
 
 while getopts ":p:n:s:t:o:m:" opt; do
