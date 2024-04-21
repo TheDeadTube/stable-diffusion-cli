@@ -87,44 +87,51 @@ interactive() {
     echo "9) 9:21"
     printf ">>> "
     read input_value
-    # TODO: This needs to be moved to its own validator function.
-    case "${input_value}" in
-      1 | 16:9 )
-        aspect_ratio="16:9"
-        ;;
-      2 | 1:1 )
-        aspect_ratio="1:1"
-        ;;
-      3 | 21:9 )
-        aspect_ratio="21:9"
-        ;;
-      4 | 2:3 )
-        aspect_ratio="2:3"
-        ;;
-      5 | 3:2 )
-        aspect_ratio="3:2"
-        ;;
-      6 | 4:5 )
-        aspect_ratio="4:5"
-        ;;
-      7 | 5:4 )
-        aspect_ratio="5:4"
-        ;;
-      8 | 9:16 )
-        aspect_ratio="9:16"
-        ;;
-      9 | 9:21 )
-        aspect_ratio="9:21"
-        ;;
-      exit )
-        exit 0
-        ;;
-      * )
-        echo "Invalid aspect ratio choice. Try again, or type 'exit' to exit."
-        # By unsetting here, we can repeat the while loop.
-        unset input_value
-    esac
+    
+    # Assume if 'input_value' is empty we're going with the default.
+    if [ -n "${input_value}" ]; then
+      # TODO: This needs to be moved to its own validator function.
+      case "${input_value}" in
+        1 | 16:9 )
+          aspect_ratio="16:9"
+          ;;
+        2 | 1:1 )
+          aspect_ratio="1:1"
+          ;;
+        3 | 21:9 )
+          aspect_ratio="21:9"
+          ;;
+        4 | 2:3 )
+          aspect_ratio="2:3"
+          ;;
+        5 | 3:2 )
+          aspect_ratio="3:2"
+          ;;
+        6 | 4:5 )
+          aspect_ratio="4:5"
+          ;;
+        7 | 5:4 )
+          aspect_ratio="5:4"
+          ;;
+        8 | 9:16 )
+          aspect_ratio="9:16"
+          ;;
+        9 | 9:21 )
+          aspect_ratio="9:21"
+          ;;
+        exit )
+          exit 0
+          ;;
+        * )
+          echo "Invalid aspect ratio choice. Try again, or type 'exit' to exit."
+          # By unsetting here, we can repeat the while loop.
+          unset input_value
+      esac
+    else
+      break
+    fi
   done
+  unset input_value
 
   # Choose seed.
   echo "Choose a seed, in the range [0, 4294967294]. Or press ENTER for random."
