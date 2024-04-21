@@ -50,6 +50,8 @@ To run the script:
 ./sd3-txt2img.sh [options]
 ```
 
+Running without options will put the script into an interactive input mode, to walk the user through their choices.
+
 Replace `[options]` with any command-line options detailed below.
 
 #### Options
