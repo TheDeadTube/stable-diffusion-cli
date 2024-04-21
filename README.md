@@ -60,17 +60,19 @@ Replace `[options]` with any command-line options detailed below.
 - `-t "file type"`: *Optional.* Choices are `jpeg` and `png`. Default is `jpeg`.
 - `-o "image name"`: *Optional.* The prefix to name your output image (and log file) with. A timestamp and the appropriate file extension will be automatically appended.
 - `-m "model"`: *Optional.* Default is `sd3`. Choices are `sd3` and `sd3-turbo`.
+- `-r "aspect ratio"`: *Optional.* Default is `16:9`. Choices are `1:1`, `2:3`, `3:2`, `4:5`, `5:4`, `9:16`, `16:9`, `9:21`, `21:9`.
 - `-h`: Print the 'help' text.
 
 ## TODO / Roadmap
 
 This section outlines planned enhancements and features we aim to implement. It serves as a rough roadmap for the project's development direction. Contributions and suggestions are welcome!
 
-- [ ] Add aspect ratio selection to `sd3-txt2img.sh`.
-- [ ] Implement interactive mode in `sd3-txt2img.sh` for easier prompt input.
+- [X] Add aspect ratio selection to `sd3-txt2img.sh`.
+- [X] Implement interactive mode in `sd3-txt2img.sh` for easier prompt input.
 - [ ] Support for additional Stability AI models beyond sd3 and sd3-turbo.
 - [ ] Add support for batch processing of multiple prompts.
 - [ ] Test compatibility with Windows systems via WSL (Windows Subsystem for Linux).
+- [ ] Better organize validation code.
 - [ ] Reticulate splines.
 
 Please note that these items are subject to change based on user feedback and contributions. If you're interested in contributing or have suggestions, please see the "Contributing" section below.
